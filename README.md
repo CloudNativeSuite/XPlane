@@ -24,3 +24,7 @@ XPlane lets you run a full multi-region platform using only:
 - Git + CI for all infrastructure mutations
 
 Start here, evolve incrementally, and keep your platform portable.
+
+## Project structure
+- `example/gitops-config/` mirrors the `platform-config` layout for GTM, autoscaling, and regional intent so Git can remain the single source of truth.
+- `src/` contains the control-plane services, split into GitOps sync, GTM reconciliation, autoscaling logic, provider adapters, and shared utilities.
