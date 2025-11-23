@@ -1,0 +1,4 @@
+region         = "ap-southeast-1"
+service        = "svc-plus"
+node_count     = 1
+instance_type  = "t3.small"

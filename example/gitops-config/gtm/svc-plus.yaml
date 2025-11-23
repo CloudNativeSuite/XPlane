@@ -1,0 +1,22 @@
+service: svc-plus
+domain: api.svc.plus
+
+regions:
+  - name: jp
+    weight: 100
+    min_ready_nodes: 1
+    fallback: true
+  - name: sg
+    weight: 10
+    min_ready_nodes: 1
+    fallback: true
+
+health:
+  type: http
+  path: /healthz
+  interval: 5s
+  timeout: 2s
+
+dns:
+  provider: cloudflare
+  ttl: 30

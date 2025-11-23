@@ -1,0 +1,23 @@
+service: svc-plus
+
+global:
+  cpu_window: 60s
+  min_regions: 1
+  max_regions: 3
+
+regions:
+  jp:
+    min_nodes: 1
+    max_nodes: 5
+    scale_up_cpu: 0.7
+    scale_down_cpu: 0.3
+    scale_up_step: 1
+    scale_down_step: 1
+
+  sg:
+    min_nodes: 0
+    max_nodes: 5
+    scale_up_cpu: 0.6
+    scale_down_cpu: 0.25
+    scale_up_step: 1
+    scale_down_step: 1

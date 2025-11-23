@@ -1,9 +1,9 @@
 # Example GitOps configuration
 
-This directory mirrors the `platform-config` layout described in the architecture notes so Git remains the single source of intent for GTM, autoscaling, and regional topology. Each subfolder is intentionally empty aside from a placeholder so teams can drop declarative policies that the control plane will ingest.
+This folder illustrates how intent is split between platform policies (GTM + autoscaling) and the infrastructure node-pool declarations that CI will eventually reconcile. Everything here is declarative—the control plane derives runtime actions such as DNS updates and Terraform commits.
 
-- `gtm/` holds desired DNS, weighting, and health-aware traffic policies.
-- `autoscale/` captures min/max capacity, scale rules, and any thresholds the autoscaler will use before committing changes back to infrastructure code.
-- `regions/` enumerates the regions and node pools that make up the global footprint.
+- `gtm/`: Desired global traffic policy per service, including health checks and fallback weights for each region.
+- `autoscale/`: Regional capacity envelopes and CPU-driven scaling rules the autoscaler reads before updating infrastructure state.
+- `node-pool/`: Terraform variable files declaring the target node counts and shapes per region; autoscaler writes back here to drive CI.
 
-See the architecture document for the broader repository layout and principles separating platform intent from infrastructure execution and node configuration.
+The examples use `svc-plus` to demonstrate how a single service can stitch together traffic policy, scaling intent, and per-region node pools while staying cloud-neutral.
