@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -16,7 +15,7 @@ import (
 )
 
 func main() {
-	cfgPath := flag.String("config", "../example/gitops-config/gtm/gtm.yaml", "Path to GTM configuration file")
+	cfgPath := flag.String("config", "../example/gitops-config/gtm/svc-plus.yaml", "Path to GTM configuration file")
 	interval := flag.Duration("interval", 30*time.Second, "Reconcile interval")
 	runOnce := flag.Bool("once", false, "Run a single reconcile and exit")
 	flag.Parse()
@@ -28,16 +27,12 @@ func main() {
 		logger.Fatalf("load config: %v", err)
 	}
 
-	providers := make([]provider.DNSProvider, 0, len(cfg.Providers))
-	for _, name := range cfg.Providers {
-		if p := buildProvider(name); p != nil {
-			providers = append(providers, p)
-			continue
-		}
-		logger.Fatalf("unknown DNS provider %q", name)
+	p := buildProvider(cfg.DNS.Provider)
+	if p == nil {
+		logger.Fatalf("unknown DNS provider %q", cfg.DNS.Provider)
 	}
 
-	controller := gtm.NewGTMController(providers...)
+	controller := gtm.NewGTMController(p)
 	if err := seedController(controller, cfg); err != nil {
 		logger.Fatalf("seed controller: %v", err)
 	}
@@ -65,7 +60,7 @@ func main() {
 }
 
 func buildProvider(name string) provider.DNSProvider {
-	switch strings.ToLower(name) {
+	switch name {
 	case "cloudflare":
 		return provider.NewCloudflareProvider()
 	case "alidns":
@@ -83,8 +78,8 @@ func seedController(controller *gtm.GTMController, cfg config.GTMConfig) error {
 	for _, region := range cfg.Regions {
 		controller.RegisterRegion(gtm.Region{
 			Name:            region.Name,
-			BaseWeight:      region.BaseWeight,
-			HealthThreshold: region.HealthThreshold,
+			BaseWeight:      region.Weight,
+			HealthThreshold: 0,
 			MinReadyNodes:   region.MinReadyNodes,
 		})
 
