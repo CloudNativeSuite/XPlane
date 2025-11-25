@@ -1,0 +1,35 @@
+domain: api.xplane.local
+providers:
+  - cloudflare
+  - alidns
+  - route53
+  - powerdns
+regions:
+  - name: us-east-1
+    base_weight: 120
+    health_threshold: 0.8
+    min_ready_nodes: 2
+    nodes:
+      - id: use1-node-a
+        address: 10.0.0.1
+        rtt_ms: 45
+        error_rate: 0.01
+        blackbox: true
+        status: up
+      - id: use1-node-b
+        address: 10.0.0.2
+        rtt_ms: 60
+        error_rate: 0.02
+        blackbox: true
+        status: up
+  - name: ap-sg
+    base_weight: 100
+    health_threshold: 0.6
+    min_ready_nodes: 1
+    nodes:
+      - id: ap-node-a
+        address: 10.1.0.1
+        rtt_ms: 80
+        error_rate: 0.03
+        blackbox: false
+        status: up
