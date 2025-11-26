@@ -1,37 +1,43 @@
 package config
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestLoadGTMConfig(t *testing.T) {
-	cfg, err := LoadGTMConfig("../../../example/gitops-config/gtm/gtm.yaml")
+	cfg, err := LoadGTMConfig("../../../example/gitops-config/gtm/svc-plus.yaml")
 	if err != nil {
 		t.Fatalf("load config: %v", err)
 	}
 
-	if cfg.Domain != "api.xplane.local" {
+	if cfg.Service != "svc-plus" {
+		t.Fatalf("unexpected service: %s", cfg.Service)
+	}
+
+	if cfg.Domain != "api.svc.plus" {
 		t.Fatalf("unexpected domain: %s", cfg.Domain)
 	}
 
-	if len(cfg.Providers) != 4 {
-		t.Fatalf("expected 4 providers, got %d", len(cfg.Providers))
+	if cfg.DNS.Provider != "cloudflare" || cfg.DNS.TTL != 30 {
+		t.Fatalf("unexpected DNS settings: %+v", cfg.DNS)
 	}
 
 	if len(cfg.Regions) != 2 {
 		t.Fatalf("expected 2 regions, got %d", len(cfg.Regions))
 	}
 
-	usEast := cfg.Regions[0]
-	if usEast.BaseWeight != 120 || usEast.MinReadyNodes != 2 {
-		t.Fatalf("unexpected us-east config: %+v", usEast)
+	jp := cfg.Regions[0]
+	if jp.Name != "jp" || jp.Weight != 100 || jp.MinReadyNodes != 1 || !jp.Fallback {
+		t.Fatalf("unexpected jp region config: %+v", jp)
 	}
 
-	if len(usEast.Nodes) != 2 {
-		t.Fatalf("expected 2 nodes in us-east, got %d", len(usEast.Nodes))
+	if cfg.Health.Type != "http" || cfg.Health.Path != "/healthz" {
+		t.Fatalf("unexpected health config: %+v", cfg.Health)
 	}
 
-	node := usEast.Nodes[0]
-	if node.RTTMillis != 45 || node.Status != "up" {
-		t.Fatalf("unexpected node values: %+v", node)
+	if cfg.Health.Interval != 5*time.Second || cfg.Health.Timeout != 2*time.Second {
+		t.Fatalf("unexpected health durations: %+v", cfg.Health)
 	}
 }
 
